@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>香港物料发布排期 · 2026 Q2–Q3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4f1ea; --paper:#fbfaf6; --ink:#2b2723; --muted:#8c857a; --line:#e4ded2;
+    --accent:#8c6b3f; --accent-soft:#c9b48f;
+    --tw:#fff9ec;            /* 周二周三淡金 */
+    --shadow:0 1px 2px rgba(43,39,35,.06), 0 8px 24px rgba(43,39,35,.05);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:
+      radial-gradient(1200px 600px at 80% -10%, #efe9dd 0%, transparent 60%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased; line-height:1.5;
+  }
+  .wrap{max-width:1180px; margin:0 auto; padding:34px 26px 80px}
+  .serif{font-family:"Noto Serif SC","Songti SC","STSong",serif}
+
+  /* Header */
+  header.top{display:flex; align-items:flex-end; justify-content:space-between; gap:20px; flex-wrap:wrap; margin-bottom:6px}
+  .brand{display:flex; align-items:center; gap:12px}
+  .brand .mark{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,var(--accent),#b59257);
+    display:grid;place-items:center;color:#fff;font-weight:700;font-size:18px;box-shadow:var(--shadow)}
+  h1{font-size:25px; margin:0; letter-spacing:.5px}
+  .sub{color:var(--muted); font-size:13px; margin-top:3px}
+  .summary{font-size:13px; color:var(--muted); background:var(--paper); border:1px solid var(--line);
+    padding:8px 14px; border-radius:10px}
+  .summary b{color:var(--accent)}
+
+  /* Toolbar */
+  .toolbar{display:flex; gap:8px; flex-wrap:wrap; margin:18px 0 14px}
+  .btn{font:inherit; font-size:13px; padding:8px 14px; border-radius:9px; border:1px solid var(--line);
+    background:var(--paper); color:var(--ink); cursor:pointer; transition:.15s; display:inline-flex; align-items:center; gap:6px}
+  .btn:hover{border-color:var(--accent-soft); box-shadow:var(--shadow)}
+  .btn.primary{background:var(--accent); color:#fff; border-color:var(--accent)}
+  .btn.primary:hover{background:#7a5c33}
+  .btn.danger{color:#b5524a; border-color:#e8cdc9}
+  .btn.danger:hover{background:#fbeae8}
+
+  /* Legend */
+  .legend{display:flex; gap:22px; flex-wrap:wrap; align-items:center; background:var(--paper);
+    border:1px solid var(--line); border-radius:12px; padding:12px 16px; margin-bottom:8px; box-shadow:var(--shadow)}
+  .legend .grp{display:flex; gap:13px; flex-wrap:wrap; align-items:center}
+  .legend .lbl{font-size:11px; color:var(--muted); letter-spacing:1px; margin-right:2px}
+  .tchip{display:inline-flex; align-items:center; gap:6px; font-size:12px}
+  .tchip i{width:11px;height:11px;border-radius:3px;display:inline-block}
+  .cchip{display:inline-flex; align-items:center; gap:4px; font-size:12px; color:var(--muted)}
+  .cchip svg{width:13px;height:13px}
+  .note-inline{font-size:12px;color:var(--muted)}
+  .note-inline .dash{display:inline-block;width:18px;border-top:1.5px dashed var(--accent-soft);vertical-align:middle;margin-right:4px}
+
+  /* Completed strip */
+  .strip-card{background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:12px 16px;
+    margin:14px 0; box-shadow:var(--shadow)}
+  .strip-card .hd{font-size:12px; color:var(--muted); letter-spacing:1px; margin-bottom:9px; display:flex; align-items:center; gap:7px}
+  .dropzone-strip{display:flex; gap:8px; flex-wrap:wrap; min-height:30px; align-items:flex-start}
+  .dropzone-strip .empty{color:var(--muted); font-size:12px}
+
+  /* Calendar */
+  .cal-scroll{overflow-x:auto; padding-bottom:6px}
+  .month{margin:26px 0 6px; min-width:760px}
+  .month-h{font-size:19px; margin:0 0 10px; display:flex; align-items:baseline; gap:8px}
+  .month-h b{color:var(--accent); font-size:23px}
+  .month-h .tag-count{font-size:12px;color:var(--muted);font-weight:400;margin-left:auto}
+  .weekrow,.grid{display:grid; grid-template-columns:repeat(7,1fr); gap:6px}
+  .weekrow{margin-bottom:6px}
+  .wd{font-size:12px; color:var(--muted); text-align:center; padding:4px 0}
+  .wd.tw{color:var(--accent); font-weight:700}
+  .wd.wend{color:#b9b0a2}
+  .cell{background:var(--paper); border:1px solid var(--line); border-radius:10px; min-height:96px;
+    padding:6px 6px 8px; display:flex; flex-direction:column; transition:.12s}
+  .cell.out{background:transparent; border:1px solid transparent}
+  .cell.tw{background:var(--tw); border-color:#efe1c4}
+  .cell.wend{background:#f6f3ec}
+  .cell.drop-hover{border-color:var(--accent); box-shadow:0 0 0 2px rgba(140,107,63,.18) inset}
+  .cell-h{display:flex; align-items:center; justify-content:space-between; margin-bottom:4px}
+  .dnum{font-size:12px; color:var(--muted); font-weight:500; padding-left:2px}
+  .cell.tw .dnum{color:var(--accent)}
+  .add{opacity:0; border:none; background:transparent; color:var(--muted); cursor:pointer; font-size:15px;
+    line-height:1; padding:0 4px; border-radius:6px; transition:.12s}
+  .cell:hover .add{opacity:1}
+  .add:hover{background:#efe9dd; color:var(--accent)}
+  .cell-body{display:flex; flex-direction:column; gap:5px}
+
+  /* Tag */
+  .tag{--c:#8a7a52; position:relative; background:color-mix(in srgb, var(--c) 11%, var(--paper));
+    border:1px solid color-mix(in srgb, var(--c) 28%, transparent); border-left:3px solid var(--c);
+    border-radius:7px; padding:5px 7px; cursor:grab; transition:.12s; user-select:none}
+  .tag:hover{box-shadow:var(--shadow); transform:translateY(-1px)}
+  .tag:active{cursor:grabbing}
+  .tag.dragging{opacity:.4}
+  .tag-title{font-size:12.5px; font-weight:500; color:color-mix(in srgb, var(--c) 72%, var(--ink)); line-height:1.32}
+  .tag-foot{display:flex; align-items:center; gap:6px; margin-top:4px; flex-wrap:wrap}
+  .chs{display:inline-flex; gap:4px; align-items:center}
+  .ch{display:inline-flex; color:var(--muted)}
+  .ch svg{width:13px;height:13px}
+  .badge{font-size:10px; padding:1px 6px; border-radius:20px; letter-spacing:.5px}
+  .badge.tentative{background:#eef0f4; color:#5a6a86; border:1px solid #dbe0ea}
+  .badge.placeholder{background:transparent; color:var(--muted); border:1px dashed var(--accent-soft)}
+  .badge.done{background:#e9efe9; color:#4f7257}
+  .tag.s-tentative{border-style:dashed}
+  .tag.s-placeholder{border-style:dashed; opacity:.92}
+  .tag.s-done{opacity:.7}
+  .tag.s-done .tag-title{text-decoration:none}
+
+  /* Stats placeholder */
+  .stats{margin-top:30px; background:linear-gradient(180deg,var(--paper),#f7f3ea); border:1px dashed var(--accent-soft);
+    border-radius:14px; padding:20px 22px; position:relative; box-shadow:var(--shadow)}
+  .stats .soon{position:absolute; top:14px; right:16px; font-size:11px; letter-spacing:1px; color:var(--accent);
+    background:#fff; border:1px solid var(--accent-soft); padding:3px 10px; border-radius:20px}
+  .stats h3{margin:0 0 4px; font-size:16px}
+  .stats p{margin:0 0 16px; font-size:13px; color:var(--muted)}
+  .stat-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px}
+  .stat-box{background:#fff; border:1px solid var(--line); border-radius:10px; padding:14px}
+  .stat-box .k{font-size:12px; color:var(--muted)}
+  .stat-box .v{font-size:22px; font-weight:700; color:var(--accent-soft); margin-top:4px}
+  .stat-box .v small{font-size:12px;font-weight:400}
+
+  .foot-note{margin-top:24px;font-size:12px;color:var(--muted);text-align:center}
+
+  /* Modal */
+  .overlay{position:fixed; inset:0; background:rgba(43,39,35,.42); display:none; align-items:center; justify-content:center; z-index:50; padding:20px}
+  .overlay.show{display:flex}
+  .modal{background:var(--paper); border-radius:16px; width:420px; max-width:100%; padding:24px; box-shadow:0 20px 60px rgba(0,0,0,.25); max-height:92vh; overflow:auto}
+  .modal h3{margin:0 0 16px; font-size:18px}
+  .modal label{display:block; font-size:12px; color:var(--muted); margin-bottom:13px}
+  .modal label input[type=text],.modal label select,.modal label input[type=date],.modal label textarea{
+    width:100%; margin-top:5px; font:inherit; font-size:14px; color:var(--ink); padding:9px 11px;
+    border:1px solid var(--line); border-radius:9px; background:#fff}
+  .modal .field{font-size:12px; color:var(--muted); margin-bottom:13px}
+  .checks{display:flex; gap:14px; flex-wrap:wrap; margin-top:7px}
+  .checks label{display:inline-flex; align-items:center; gap:5px; color:var(--ink); font-size:13px; margin:0; cursor:pointer}
+  .checks input{accent-color:var(--accent)}
+  .modal-foot{display:flex; align-items:center; gap:8px; margin-top:6px}
+
+  /* Toast */
+  .toast{position:fixed; left:50%; bottom:34px; transform:translateX(-50%) translateY(20px); opacity:0;
+    background:var(--ink); color:#fbfaf6; font-size:13px; padding:10px 18px; border-radius:30px; pointer-events:none;
+    transition:.25s; z-index:60; box-shadow:0 8px 30px rgba(0,0,0,.25)}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <header class="top">
+    <div class="brand">
+      <div class="mark serif">蓝</div>
+      <div>
+        <h1 class="serif">香港物料发布排期</h1>
+        <div class="sub">蓝玛 · 2026 Q2–Q3 · 电子报告 / 公众号 / 视频推广 · 主发布锚周二·周三 · 一周一次</div>
+      </div>
+    </div>
+    <div class="summary" id="summary"></div>
+  </header>
+
+  <div class="toolbar">
+    <button class="btn primary" id="btnAdd">＋ 新增物料</button>
+    <button class="btn" id="btnImport">导入 JSON</button>
+    <input type="file" id="fileInput" accept="application/json" hidden>
+    <button class="btn danger" id="btnReset">恢复默认排期</button>
+  </div>
+
+  <div class="legend">
+    <div class="grp"><span class="lbl">类型</span>
+      <span class="tchip"><i style="background:#8c6b3f"></i>年度报告</span>
+      <span class="tchip"><i style="background:#2e6e5e"></i>半年度报告</span>
+      <span class="tchip"><i style="background:#3a5a8c"></i>季度报告</span>
+      <span class="tchip"><i style="background:#6b4e8c"></i>月度指数</span>
+      <span class="tchip"><i style="background:#b5524a"></i>视频推广</span>
+      <span class="tchip"><i style="background:#8a7a52"></i>专题内容</span>
+    </div>
+    <div class="grp" id="channelLegend"><span class="lbl">渠道</span></div>
+    <div class="grp"><span class="note-inline"><span class="dash"></span>虚线=待定/建议占位，可改名可删</span></div>
+  </div>
+
+  <div class="strip-card">
+    <div class="hd">✅ 已完成 · 前期物料（无固定日期，可拖入日历安排）</div>
+    <div class="dropzone-strip" id="strip" data-date=""></div>
+  </div>
+
+  <div class="cal-scroll"><div id="calendar"></div></div>
+
+  <div class="stats">
+    <span class="soon">即将上线</span>
+    <h3 class="serif">📊 转发统计看板</h3>
+    <p>发布后蓝玛经纪人转发、BP 统计数量的数据位已预留——每个物料已带「状态 / 转发数」字段，需要时一键接入，无需返工。</p>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="k">蓝玛经纪人转发</div><div class="v">—</div></div>
+      <div class="stat-box"><div class="k">公众号转发量</div><div class="v">—</div></div>
+      <div class="stat-box"><div class="k">本月已发物料</div><div class="v" id="statPublished">—</div></div>
+      <div class="stat-box"><div class="k">转发完成率</div><div class="v">— <small>%</small></div></div>
+    </div>
+  </div>
+
+  <div class="foot-note">所有改动自动保存在本机浏览器（localStorage）· 换设备请用「导出 / 导入 JSON」</div>
+</div>
+
+<!-- Modal -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3 id="mTitle" class="serif">编辑物料</h3>
+    <label>名称<input id="fTitle" type="text" placeholder="如：6月月度指数报告" autocomplete="off"></label>
+    <label>类型<select id="fType"></select></label>
+    <div class="field">渠道<div class="checks" id="fChannels"></div></div>
+    <label>状态<select id="fStatus"></select></label>
+    <label>日期 <span style="color:#b9b0a2">（留空=放入「前期物料」）</span><input id="fDate" type="date" min="2026-06-01" max="2026-09-30"></label>
+    <label>备注<textarea id="fNote" rows="2" placeholder="可选"></textarea></label>
+    <div class="modal-foot">
+      <button class="btn danger" id="btnDelete">删除</button>
+      <span style="flex:1"></span>
+      <button class="btn" id="btnCancel">取消</button>
+      <button class="btn primary" id="btnSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+
+/* ---------- 配置 ---------- */
+const TYPES = {
+  annual:    {label:'年度报告',   c:'#8c6b3f'},
+  semiannual:{label:'半年度报告', c:'#2e6e5e'},
+  quarterly: {label:'季度报告',   c:'#3a5a8c'},
+  monthly:   {label:'月度指数',   c:'#6b4e8c'},
+  video:     {label:'视频推广',   c:'#b5524a'},
+  topic:     {label:'专题内容',   c:'#8a7a52'},
+};
+const ICONS = {
+  wechat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
+  video:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="6 4 20 12 6 20 6 4" fill="currentColor" stroke="none"/></svg>',
+  epub:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+  print:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+};
+const CHANNELS = {
+  wechat:{label:'公众号'}, video:{label:'视频'}, epub:{label:'电子版'}, print:{label:'纸质'},
+};
+const STATUS = {
+  todo:{label:'待发'}, tentative:{label:'待定'}, placeholder:{label:'建议占位'}, done:{label:'已完成'},
+};
+const MONTHS = [{y:2026,m:5},{y:2026,m:6},{y:2026,m:7},{y:2026,m:8}];
+
+/* ---------- 默认排期 ---------- */
+function seed(){return {items:[
+  // 前期已完成（无日期）
+  {id:'annual',title:'香港年度报告（纸质）',type:'annual',channels:['print'],date:'',status:'done',note:'已印刷并发往门店',fwd:0},
+  {id:'v1',title:'视频推广 第1期',type:'video',channels:['video'],date:'',status:'done',note:'',fwd:0},
+  {id:'v2',title:'视频推广 第2期',type:'video',channels:['video'],date:'',status:'done',note:'',fwd:0},
+  {id:'v3',title:'视频推广 第3期',type:'video',channels:['video'],date:'',status:'done',note:'',fwd:0},
+  // 6月
+  {id:'v4',title:'视频推广 第4期',type:'video',channels:['video'],date:'2026-06-26',status:'todo',note:'周五发布',fwd:0},
+  // 7月
+  {id:'v5',title:'视频推广 第5期（收官）',type:'video',channels:['video'],date:'2026-07-03',status:'todo',note:'5期系列收官，周五发布',fwd:0},
+  {id:'m6',title:'6月 月度指数报告',type:'monthly',channels:['epub','wechat'],date:'2026-07-07',status:'todo',note:'电子版+公众号，7/7–7/8 窗口',fwd:0},
+  {id:'m6v',title:'6月指数 配套视频',type:'video',channels:['video'],date:'2026-07-08',status:'todo',note:'',fwd:0},
+  {id:'h1',title:'半年度香港报告',type:'semiannual',channels:['epub','wechat'],date:'2026-07-14',status:'todo',note:'H1 大盘，7/14–7/15 窗口',fwd:0},
+  {id:'h1v',title:'半年报 配套视频',type:'video',channels:['video'],date:'2026-07-15',status:'todo',note:'',fwd:0},
+  {id:'q2',title:'Q2 季度报告',type:'quarterly',channels:['epub','wechat'],date:'2026-07-21',status:'tentative',note:'建议时点：紧接半年报借势、维持周节奏（备选 7/28）',fwd:0},
+  {id:'q2v',title:'Q2季报 配套视频',type:'video',channels:['video'],date:'2026-07-22',status:'tentative',note:'',fwd:0},
+  {id:'t728',title:'专题·香港豪宅半年盘点',type:'topic',channels:['wechat','video'],date:'2026-07-28',status:'placeholder',note:'建议选题，可改可删',fwd:0},
+  // 8月
+  {id:'m7',title:'7月 月度指数报告',type:'monthly',channels:['epub','wechat'],date:'2026-08-04',status:'tentative',note:'每月第一周',fwd:0},
+  {id:'m7v',title:'7月指数 配套视频',type:'video',channels:['video'],date:'2026-08-05',status:'tentative',note:'',fwd:0},
+  {id:'t811',title:'专题·政策/板块解读',type:'topic',channels:['wechat','video'],date:'2026-08-11',status:'placeholder',note:'建议选题',fwd:0},
+  {id:'t818',title:'专题·豪宅个案研究（研究院）',type:'topic',channels:['wechat','video'],date:'2026-08-18',status:'placeholder',note:'建议选题',fwd:0},
+  {id:'t825',title:'专题·市场热点速递',type:'topic',channels:['wechat'],date:'2026-08-25',status:'placeholder',note:'建议选题',fwd:0},
+  // 9月
+  {id:'m8',title:'8月 月度指数报告',type:'monthly',channels:['epub','wechat'],date:'2026-09-01',status:'tentative',note:'每月第一周',fwd:0},
+  {id:'m8v',title:'8月指数 配套视频',type:'video',channels:['video'],date:'2026-09-02',status:'tentative',note:'',fwd:0},
+  {id:'t908',title:'专题·区域市场深度',type:'topic',channels:['wechat','video'],date:'2026-09-08',status:'placeholder',note:'建议选题',fwd:0},
+  {id:'t915',title:'专题·豪宅个案研究（研究院）',type:'topic',channels:['wechat','video'],date:'2026-09-15',status:'placeholder',note:'建议选题',fwd:0},
+  {id:'t922',title:'专题·市场观点/访谈',type:'topic',channels:['wechat'],date:'2026-09-22',status:'placeholder',note:'建议选题',fwd:0},
+  {id:'t929',title:'Q3 季报预热',type:'quarterly',channels:['wechat'],date:'2026-09-29',status:'placeholder',note:'Q3季报正式发布约在10月中，此处先预热',fwd:0},
+]};}
+
+/* ---------- 状态 ---------- */
+const KEY='hk_content_calendar_v1';
+let data = load();
+let editingId = null;
+let byDate = {};
+
+function load(){
+  try{ const raw=localStorage.getItem(KEY); if(raw){const d=JSON.parse(raw); if(d&&Array.isArray(d.items)) return d;} }catch(e){}
+  return seed();
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(data)); }catch(e){} }
+
+/* ---------- 工具 ---------- */
+const pad=n=>String(n).padStart(2,'0');
+const dstr=(y,m,d)=>`${y}-${pad(m+1)}-${pad(d)}`;
+const esc=s=>(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+function wdayOf(iso){ const [y,m,d]=iso.split('-').map(Number); return new Date(y,m-1,d).getDay(); }
+
+/* ---------- 渲染 ---------- */
+function tagHTML(it){
+  const t=TYPES[it.type]||TYPES.topic;
+  const chs=(it.channels||[]).map(c=>`<span class="ch" title="${CHANNELS[c]?CHANNELS[c].label:c}">${ICONS[c]||''}</span>`).join('');
+  let badge='';
+  if(it.status==='tentative') badge='<span class="badge tentative">待定</span>';
+  else if(it.status==='placeholder') badge='<span class="badge placeholder">建议</span>';
+  else if(it.status==='done') badge='<span class="badge done">已完成</span>';
+  return `<div class="tag s-${it.status}" draggable="true" data-id="${it.id}" style="--c:${t.c}" title="${esc(it.note||'')}">
+    <div class="tag-title">${esc(it.title)}</div>
+    <div class="tag-foot"><span class="chs">${chs}</span>${badge}</div>
+  </div>`;
+}
+function buildMonth(y,m){
+  const offset=(new Date(y,m,1).getDay()+6)%7;
+  const days=new Date(y,m+1,0).getDate();
+  const cells=[];
+  for(let i=0;i<offset;i++) cells.push(null);
+  for(let d=1;d<=days;d++) cells.push(d);
+  while(cells.length%7) cells.push(null);
+  return cells;
+}
+function monthHTML(y,m){
+  const cells=buildMonth(y,m);
+  let count=0;
+  const body=cells.map(d=>{
+    if(!d) return '<div class="cell out"></div>';
+    const ds=dstr(y,m,d), wd=new Date(y,m,d).getDay();
+    const tw=(wd===2||wd===3), wend=(wd===0||wd===6);
+    const tags=(byDate[ds]||[]); count+=tags.length;
+    return `<div class="cell ${tw?'tw':''} ${wend?'wend':''}" data-date="${ds}">
+      <div class="cell-h"><span class="dnum">${d}</span><button class="add" data-date="${ds}" title="在这天新增">＋</button></div>
+      <div class="cell-body">${tags.map(tagHTML).join('')}</div>
+    </div>`;
+  }).join('');
+  const wk=['一','二','三','四','五','六','日'].map((w,i)=>`<div class="wd ${(i===1||i===2)?'tw':''} ${i>=5?'wend':''}">周${w}</div>`).join('');
+  return `<section class="month">
+    <div class="month-h serif">${y}年 <b>${m+1}月</b><span class="tag-count">${count} 项</span></div>
+    <div class="weekrow">${wk}</div>
+    <div class="grid">${body}</div>
+  </section>`;
+}
+function render(){
+  byDate={};
+  data.items.forEach(it=>{ if(it.date){ (byDate[it.date]=byDate[it.date]||[]).push(it); } });
+  document.getElementById('calendar').innerHTML = MONTHS.map(o=>monthHTML(o.y,o.m)).join('');
+  const strip=data.items.filter(it=>!it.date);
+  document.getElementById('strip').innerHTML = strip.length? strip.map(tagHTML).join('') : '<span class="empty">（暂无）· 把日历上的标签拖到这里即可取消日期</span>';
+  // summary
+  const s={todo:0,tentative:0,placeholder:0,done:0};
+  data.items.forEach(it=>{s[it.status]=(s[it.status]||0)+1;});
+  document.getElementById('summary').innerHTML=`共 <b>${data.items.length}</b> 项 · 待发 ${s.todo||0} · 待定 ${s.tentative||0} · 建议 ${s.placeholder||0} · 已完成 ${s.done||0}`;
+  document.getElementById('statPublished').textContent = s.done||0;
+}
+
+/* ---------- 拖拽 ---------- */
+let dragId=null;
+function clearHover(){ document.querySelectorAll('.drop-hover').forEach(el=>el.classList.remove('drop-hover')); }
+const app=document.getElementById('app');
+app.addEventListener('dragstart',e=>{ const t=e.target.closest('.tag'); if(!t)return; dragId=t.dataset.id; e.dataTransfer.setData('text/plain',dragId); e.dataTransfer.effectAllowed='move'; t.classList.add('dragging'); });
+app.addEventListener('dragend',e=>{ const t=e.target.closest('.tag'); if(t)t.classList.remove('dragging'); clearHover(); });
+app.addEventListener('dragover',e=>{ const z=e.target.closest('.cell:not(.out), .dropzone-strip'); if(!z)return; e.preventDefault(); e.dataTransfer.dropEffect='move'; if(!z.classList.contains('drop-hover')){ clearHover(); z.classList.add('drop-hover'); } });
+app.addEventListener('drop',e=>{
+  const z=e.target.closest('.cell:not(.out), .dropzone-strip'); if(!z)return; e.preventDefault();
+  const id=e.dataTransfer.getData('text/plain')||dragId; const it=data.items.find(x=>x.id===id);
+  clearHover(); if(!it)return;
+  const nd=z.dataset.date||'';
+  if(it.date===nd) return;
+  it.date=nd; save(); render();
+  if(nd===''){ toast('已移到「前期物料」'); }
+  else { const wd=wdayOf(nd); toast((wd===2||wd===3)?'已移动 ✓':'已移动 · 建议安排在周二/周三'); }
+});
+
+/* ---------- 点击：编辑 / 新增 ---------- */
+app.addEventListener('click',e=>{
+  const add=e.target.closest('.add'); if(add){ openEditor(null, add.dataset.date); return; }
+  const tag=e.target.closest('.tag'); if(tag){ const it=data.items.find(x=>x.id===tag.dataset.id); if(it) openEditor(it); }
+});
+
+/* ---------- 弹窗 ---------- */
+const overlay=document.getElementById('overlay');
+function fillSelects(){
+  document.getElementById('fType').innerHTML=Object.entries(TYPES).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join('');
+  document.getElementById('fStatus').innerHTML=Object.entries(STATUS).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join('');
+  document.getElementById('fChannels').innerHTML=Object.entries(CHANNELS).map(([k,v])=>`<label><input type="checkbox" value="${k}">${v.label}</label>`).join('');
+  document.getElementById('channelLegend').insertAdjacentHTML('beforeend',
+    Object.entries(CHANNELS).map(([k,v])=>`<span class="cchip">${ICONS[k]} ${v.label}</span>`).join(''));
+}
+function openEditor(it, presetDate){
+  editingId = it ? it.id : null;
+  document.getElementById('mTitle').textContent = it ? '编辑物料' : '新增物料';
+  document.getElementById('fTitle').value = it ? it.title : '';
+  document.getElementById('fType').value = it ? it.type : 'topic';
+  document.getElementById('fStatus').value = it ? it.status : 'todo';
+  document.getElementById('fDate').value = it ? (it.date||'') : (presetDate||'');
+  document.getElementById('fNote').value = it ? (it.note||'') : '';
+  const ch = it ? (it.channels||[]) : ['wechat'];
+  document.querySelectorAll('#fChannels input').forEach(b=>{ b.checked = ch.includes(b.value); });
+  document.getElementById('btnDelete').style.display = it ? '' : 'none';
+  overlay.classList.add('show');
+  document.getElementById('fTitle').focus();
+}
+function closeEditor(){ overlay.classList.remove('show'); editingId=null; }
+
+document.getElementById('btnSave').addEventListener('click',()=>{
+  const title=document.getElementById('fTitle').value.trim()||'未命名物料';
+  const obj={
+    title, type:document.getElementById('fType').value,
+    status:document.getElementById('fStatus').value,
+    date:document.getElementById('fDate').value||'',
+    note:document.getElementById('fNote').value.trim(),
+    channels:[...document.querySelectorAll('#fChannels input:checked')].map(b=>b.value),
+  };
+  if(editingId){ const it=data.items.find(x=>x.id===editingId); Object.assign(it,obj); }
+  else { obj.id='id_'+Date.now()+'_'+Math.random().toString(36).slice(2,6); obj.fwd=0; data.items.push(obj); }
+  save(); render(); closeEditor(); toast('已保存');
+});
+document.getElementById('btnDelete').addEventListener('click',()=>{
+  if(!editingId) return;
+  if(!confirm('确定删除这个物料？')) return;
+  data.items=data.items.filter(x=>x.id!==editingId); save(); render(); closeEditor(); toast('已删除');
+});
+document.getElementById('btnCancel').addEventListener('click',closeEditor);
+overlay.addEventListener('click',e=>{ if(e.target===overlay) closeEditor(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&overlay.classList.contains('show')) closeEditor(); });
+
+/* ---------- 工具栏 ---------- */
+document.getElementById('btnAdd').addEventListener('click',()=>openEditor(null,''));
+document.getElementById('btnReset').addEventListener('click',()=>{
+  if(!confirm('恢复到默认排期？当前所有改动将被覆盖。')) return;
+  data=seed(); save(); render(); toast('已恢复默认排期');
+});
+document.getElementById('btnImport').addEventListener('click',()=>document.getElementById('fileInput').click());
+document.getElementById('fileInput').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f)return; const r=new FileReader();
+  r.onload=()=>{ try{ const d=JSON.parse(r.result); if(d&&Array.isArray(d.items)){ data=d; save(); render(); toast('导入成功'); } else alert('文件格式不对'); }catch(err){ alert('解析失败：'+err.message); } };
+  r.readAsText(f); e.target.value='';
+});
+
+/* ---------- Toast ---------- */
+let toastTimer; const toastEl=document.getElementById('toast');
+function toast(msg){ toastEl.textContent=msg; toastEl.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>toastEl.classList.remove('show'),1800); }
+
+/* ---------- 启动 ---------- */
+fillSelects();
+render();
+</script>
+</body>
+</html>
